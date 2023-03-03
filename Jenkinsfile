@@ -27,7 +27,6 @@ pipeline
                 echo 'Deploy App'
             }
         }
-    }
     
     post
     {
@@ -36,4 +35,5 @@ pipeline
             emailext body: 'Summary', subject: 'Pipeline Status', to: 'hemantsaroj5@gmail.com'
         }
     }
+}
 }
