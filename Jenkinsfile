@@ -1,39 +1,32 @@
-pipeline 
-{
+pipeline {
     agent any
 
-    stages 
-    {
-        stage('Build') 
-        {
-            steps 
-            {
-                echo 'Build App'
-            }
-        }
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "MAVEN_HOME"
+    }
 
-        stage('Test') 
-        {
-            steps 
-            {
-                echo 'Test App'
-            }
-        }
+    stages {
+        stage('Build') {
+            steps {
+                // Get some code from a GitHub repository
+                git 'https://github.com/hemantsaroj/mavenjenkins.git'
 
-        stage('Deploy') 
-        {
-            steps 
-            {
-                echo 'Deploy App'
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+
+            post {
+                // If Maven was able to run the tests, even if some of the test
+                // failed, record the test results and archive the jar file.
+                success {
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
+                }
             }
         }
     }
-    post
-    {
-        always
-        {
-            emailext body: 'Summary', subject: 'Pipeline Status', to: 'hemantsaroj5@gmail.com'
-        }
-    }
-
 }
